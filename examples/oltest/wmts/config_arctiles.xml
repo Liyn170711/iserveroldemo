@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<CacheInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:typens="http://www.esri.com/schemas/ArcGIS/10.0" xsi:type="typens:CacheInfo">
+  <TileCacheInfo xsi:type="typens:TileCacheInfo">
+    <SpatialReference xsi:type="typens:GeographicCoordinateSystem">
+      <WKT>GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]</WKT>
+      <XOrigin>-399.99999999999989</XOrigin>
+      <YOrigin>-399.99999999999989</YOrigin>
+      <XYScale>11258999068426.24</XYScale>
+      <ZOrigin>-100000</ZOrigin>
+      <ZScale>10000</ZScale>
+      <MOrigin>-100000</MOrigin>
+      <MScale>10000</MScale>
+      <XYTolerance>8.983152841195215e-009</XYTolerance>
+      <ZTolerance>0.001</ZTolerance>
+      <MTolerance>0.001</MTolerance>
+      <HighPrecision>true</HighPrecision>
+      <LeftLongitude>-180</LeftLongitude>
+      <WKID>4326</WKID>
+    </SpatialReference>
+    <TileOrigin xsi:type="typens:PointN">
+      <X>-400</X>
+      <Y>400</Y>
+    </TileOrigin>
+    <TileCols>256</TileCols>
+    <TileRows>256</TileRows>
+    <DPI>96</DPI>
+    <LODInfos xsi:type="typens:ArrayOfLODInfo">
+      <LODInfo xsi:type="typens:LODInfo">
+        <LevelID>0</LevelID>
+        <Scale>9028</Scale>
+        <Resolution>2.1481773960635764e-005</Resolution>
+      </LODInfo>
+      <LODInfo xsi:type="typens:LODInfo">
+        <LevelID>1</LevelID>
+        <Scale>4514</Scale>
+        <Resolution>1.0740886980317882e-005</Resolution>
+      </LODInfo>
+      <LODInfo xsi:type="typens:LODInfo">
+        <LevelID>2</LevelID>
+        <Scale>2257</Scale>
+        <Resolution>5.3704434901589409e-006</Resolution>
+      </LODInfo>
+      <LODInfo xsi:type="typens:LODInfo">
+        <LevelID>3</LevelID>
+        <Scale>1128.5</Scale>
+        <Resolution>2.6852217450794705e-006</Resolution>
+      </LODInfo>
+      <LODInfo xsi:type="typens:LODInfo">
+        <LevelID>4</LevelID>
+        <Scale>565</Scale>
+        <Resolution>1.3443954682941079e-006</Resolution>
+      </LODInfo>
+    </LODInfos>
+  </TileCacheInfo>
+  <TileImageInfo xsi:type="typens:TileImageInfo">
+    <CacheTileFormat>PNG32</CacheTileFormat>
+    <CompressionQuality>0</CompressionQuality>
+    <Antialiasing>true</Antialiasing>
+  </TileImageInfo>
+  <CacheStorageInfo xsi:type="typens:CacheStorageInfo">
+    <StorageFormat>esriMapCacheStorageModeCompact</StorageFormat>
+    <PacketSize>128</PacketSize>
+  </CacheStorageInfo>
+</CacheInfo>

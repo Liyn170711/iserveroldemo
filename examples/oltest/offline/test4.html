@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载百度离线瓦片4</title><!-- 瓦片坐标是BD09 墨卡托，openlayers 定义百度坐标 -->
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+    <script type="text/javascript" src="./bd09.js"></script>
+    <script type="text/javascript" src="./transformcoord.js"></script>
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+ <!-- WGS84坐标 => BD09墨卡托坐标 位置转换有误差
+    ① WGS84坐标 => GCJ02 （transformcoord.js 里的 wgs84togcj02 方法）
+    ② GCJ02 => BD09 （transformcoord.js 里的 gcj02tobd09 方法）
+    ③ BD09 => BD09墨卡托 （百度投影实现的核心文件为bd09.js，ol.proj.transform(bd09_1, 'EPSG:4326', 'BD:09')）
+-->
+<script>
+    /*定义百度投影，这是实现无偏移加载百度地图离线瓦片核心所在。
+     网上很多相关资料在用OpenLayers加载百度地图离线瓦片时都认为投影就是EPSG:3857(也就是Web墨卡托投影)。
+     事实上这是错误的，因此无法做到无偏移加载。
+     百度地图有自己独特的投影体系，必须在OpenLayers中自定义百度投影，才能实现无偏移加载。
+     百度投影实现的核心文件为bd09.js，在迈高图官网可以找到查看这个文件。*/
+    var projBD09 = new ol.proj.Projection({
+        code: 'BD:09',
+        extent : [-20037726.37,-11708041.66,20037726.37,12474104.17],
+        units: 'm',
+        axisOrientation: 'neu',
+        global: false
+    });   
+                  
+    ol.proj.addProjection(projBD09);
+    ol.proj.addCoordinateTransforms("EPSG:4326", "BD:09",
+        function (coordinate) {
+            return lngLatToMercator(coordinate);
+        },
+        function (coordinate) {
+           return mercatorToLngLat(coordinate);
+        }
+   );
+            
+   /*定义百度地图分辨率与瓦片网格*/
+   var resolutions = [];
+   for (var i = 0; i <= 18; i++) {
+     resolutions[i] = Math.pow(2, 18 - i);
+   }
+
+   var tilegrid = new ol.tilegrid.TileGrid({
+     origin: [0, 0],
+     resolutions: resolutions
+   });
+
+   /*加载百度地图离线瓦片不能用ol.source.XYZ，ol.source.XYZ针对谷歌地图（注意：是谷歌地图）而设计，
+    而百度地图与谷歌地图使用了不同的投影、分辨率和瓦片网格。因此这里使用ol.source.TileImage来自行指定
+    投影、分辨率、瓦片网格。*/
+   var baiduSource= new ol.source.TileImage({
+     projection: "BD:09",
+     tileGrid: tilegrid,
+     tileUrlFunction: function(tileCoord, pixelRatio, proj) {
+        var z = tileCoord[0];
+        var x = tileCoord[1];
+        var y = tileCoord[2];
+        // 百度瓦片服务url将负数使用M前缀来标识
+        if(x<0){
+            x = 'M' + (-x);
+        }
+        if(y<0){
+            y = 'M' + (-y);
+        }
+        return "./tilebd09//" + z + "/" + x + "/" + y + ".png";
+     }
+   });
+
+    // 百度地图层
+    var baiduMapLayer = new ol.layer.Tile({
+        source: baiduSource
+    });
+    //调试瓦片图层
+    var tileDebugLayer = new ol.layer.Tile({
+        source: new ol.source.TileDebug({
+            projection: "BD:09",
+            tileGrid: baiduSource.getTileGrid(),
+        })
+    });
+
+    // 创建地图
+    var map = new ol.Map({
+        layers: [
+            baiduMapLayer
+        ],
+        view: new ol.View({
+            // center: [12948654.108110826, 4862490.168718785], // 从tms.xml中计算得出的中心，有偏移需要转换为 BD09 坐标
+            center: [12948734.184238855, 4834830.741590464],
+            projection: 'BD:09',
+            zoom: 17,
+            minZoom: 0,
+            maxZoom: 18
+        }),
+        target: 'map'
+    });
+    map.getView().on('change:resolution', ev => {
+        var zoom = map.getView().getZoom()
+        var center = map.getView().getCenter()
+        var extent = map.getView().calculateExtent(map.getSize())
+        console.log('zoom: ', zoom)
+        console.log('center: ', center)
+        console.log('extent: ', extent)
+      })
+    // map.addLayer(tileDebugLayer)
+
+/**
+ * @description: 添加标注
+ * @date: 2019-9-18 14:48:28
+ */
+function addMarkers (coords, type) {
+  let markerSource = new ol.source.Vector({ wrapX: false });
+  let markerLayer = new ol.layer.Vector({
+    source: markerSource,
+    style: markerVectorStyle
+  });
+  map.addLayer(markerLayer)
+  for (let i = 0; i < coords.length; i++) {
+    let pointFeature = new ol.Feature({
+      type: type,
+      label: type + '_' + i,
+      geometry: new ol.geom.Point(coords[i]),
+    });
+    markerSource.addFeature(pointFeature)
+  }
+}
+
+ /**
+ * @description: 测试添加 百度墨卡托 标注
+ * @date: 2019-9-18 14:54:27
+ */
+function addTestBD09MCMarkers() {
+  const BD09MCCoords = [[12948727.717899508774281, 4834792.035713103599846], [12948713.636692926287651, 4834790.694645809940994]]
+  addMarkers(BD09MCCoords, 'BD09MC')
+}
+
+ /**
+ * @description: 测试添加 WGS84墨卡托 标注
+ * @date: 2019-9-18 14:54:27
+ */
+function addTestMGS84MCMarkers() {
+  const BD09MCCoords = [[12948726.649505430832505, 4834794.873745935037732], [12948726.263909634202719, 4834756.852395731024444]]
+  addMarkers(BD09MCCoords, "WGS84MC")
+}
+
+ /**
+ * @description: 测试添加 WGS84 标注
+ * @date: 2019年10月9日14:15:08
+ */
+function addTestMGS84Markers() {
+  let gcj02_1 = wgs84togcj02(116.306572664470409, 39.969101399465927)
+  let bd09_1 = gcj02tobd09(gcj02_1[0], gcj02_1[1])
+  let gcj02_2 = wgs84togcj02(116.306541569293159, 39.969099096119464)
+  let bd09_2 = gcj02tobd09(gcj02_2[0], gcj02_2[1])
+  let coords1 = ol.proj.transform(bd09_1, 'EPSG:4326', 'BD:09')
+  let coords2 = ol.proj.transform(bd09_2, 'EPSG:4326', 'BD:09')
+  console.log('coords1:', coords1)
+  console.log('coords2:', coords2)
+  const BD09MCCoords = [coords1, coords2]
+  addMarkers(BD09MCCoords, "WGS84")
+}
+
+/**
+ * @description: 矢量标注图层样式
+ * @param feature 要素样式
+ * @date: 2019-9-18 16:09:34
+ */
+function markerVectorStyle(feature) {
+  let type = feature.get("type");
+  let label = feature.get("label");
+  let param = {imgSrc: '../../../img/marker.png', label}
+  switch (type) {
+    case "BD09MC":
+      param.imgSrc = '../../../img/marker-gold.png'
+      param.color = 'rgba(255, 0, 0, 0.8)'
+      return markerStyle(param); // 路线样式
+    case "WGS84MC":
+      param.imgSrc = '../../../img/marker-icon.png'
+      param.color = 'rgba(0, 0, 255, 0.8)'
+      return markerStyle(param); // 节点图标样式
+    case "WGS84":
+      param.imgSrc = '../../../img/marker.png'
+      param.color = 'rgba(255, 0, 255, 0.8)'
+      return markerStyle(param); // 节点图标样式
+  }
+}
+
+/**
+ * @description: 标注样式
+ * @param param 样式参数
+ * @date: 2019-9-18 16:09:34
+ */
+function markerStyle(param) {
+  const {imgSrc, label, color} = param
+  let style = new ol.style.Style({
+    image:  new ol.style.Icon({
+      src: imgSrc,
+      scale: 1
+    }),
+    text: new ol.style.Text({
+      font: '12px courier',
+      text: label,
+      offsetY: 24,
+      stroke: new ol.style.Stroke({
+        color: color
+      }),
+    }),
+    zIndex: 1999
+  });
+  return style
+}
+
+// addTestBD09MCMarkers() // 测试添加 百度墨卡托 标注
+// addTestMGS84MCMarkers() // 测试添加 WGS84墨卡托 标注
+addTestMGS84Markers() // 测试添加 WGS84 标注
+</script>
+</html>

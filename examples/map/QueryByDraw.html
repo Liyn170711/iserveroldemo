@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>QueryByMapBounds</title>
+    <link rel="stylesheet" href="../../libs/ol/v4.6.5/ol.css">
+    <script type="text/javascript" src="../../libs/ol/v4.6.5/ol-debug.js"></script>
+    <link rel="stylesheet" href="../../libs/iclient/iclient9-openlayers.css">
+    <script type="text/javascript" src="../../libs/iclient/iclient9-openlayers.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden; background: #fff; width: 100%; height: 100%;" onload="initMap()">
+    <div id="map" style="position: absolute; width: 100%; height: 100%;"></div>
+    <div style="position: absolute; top: 15px; left: 50px; z-index: 2; background: rgba(143, 145, 145, 0.5); height: 20px; padding: 10px;">
+        <label>Geometry type &nbsp;</label>
+        <select id="type">
+            <option value="Point">Point</option>
+            <option value="LineString">LineString</option>
+            <option value="Polygon">Polygon</option>
+            <option value="Circle">Circle</option>
+            <option value="None">None</option>
+        </select>
+        <button onclick="queryByGeometry()" title="根据绘制要素进行查询">查询</button>
+        <button onclick="clearVectorLayer()" title="清空绘制图层">清空</button>
+    </div>
+</body>
+<script type="text/javascript">
+     // 地图服务地址
+    var url = "http://support.supermap.com.cn:8090/iserver/services/map-world/rest/maps/World";
+    var map = null; // 地图
+    var drawer = null; // 全局绘制工具
+    var resultLayer = null; // 查询结果图层
+    var vectorSource = new ol.source.Vector({wrapX: false}); // 矢量图层数据源
+    var styles = { // 样式数组
+        'Point': new ol.style.Style({
+            image: new ol.style.Circle({radius: 5,fill: new ol.style.Fill({color: 'rgba(255, 0, 255, 0.4)'}),stroke: new ol.style.Stroke({color: 'red', width: 1})})
+        }),
+        'LineString': new ol.style.Style({
+          stroke: new ol.style.Stroke({color: 'green',width: 3})
+        }),
+        'Polygon': new ol.style.Style({
+          stroke: new ol.style.Stroke({color: 'blue',lineDash: [4],width: 3}),
+          fill: new ol.style.Fill({color: 'rgba(0, 0, 255, 0.1)'})
+        }),
+        'Circle': new ol.style.Style({
+          stroke: new ol.style.Stroke({color: 'red', width: 2}),
+          fill: new ol.style.Fill({color: 'rgba(255,0,0,0.2)'})
+        })
+    };
+
+    var resultLayer = new ol.layer.Vector({ // 构造矢量图层
+        style: new ol.style.Style({ // 样式
+            image: new ol.style.Circle({ // 圆样式
+                radius: 3, // 半径
+                fill: new ol.style.Fill({ // 填充样式
+                    color: 'rgba(0,0,255,0.5)' // 颜色
+                }),
+                stroke: new ol.style.Stroke({color: 'blue', width: 1}) // 边框样式
+            })
+        })
+    })
+
+    /**
+     * 初始化地图
+     */
+    function initMap() {
+         // 构造底图瓦片图层
+         var baseLayer = new ol.layer.Tile({
+            projection: "EPSG:4326", // 坐标系
+            // 设置数据源为 SuperMap iServer TileImage
+            source: new ol.source.TileSuperMapRest({    // 数据源
+                url: url // 服务地址
+            })
+        });
+        // 构造矢量绘制图层
+        var vectorLayer = new ol.layer.Vector({source: vectorSource, style: getFetureStyle});
+        // 构造地图
+        map = new ol.Map({
+            target: "map", // 地图渲染的目标DOM
+            controls: new ol.control.defaults({attributionOptions: {collapsed: false}}) // 地图控件默认不折叠
+                .extend([new ol.supermap.control.Logo()]), // 将 SupperMap Logo 控件添加到地图控件集合中
+            view: new ol.View({
+                center: [0,0], // 中心点经纬度值
+                zoom: 4, // 默认缩放等级
+                projection: "EPSG:4326" // 坐标系
+            }),
+            layers: [baseLayer,vectorLayer,resultLayer]
+        });
+        document.getElementById("type").onchange = function (event) { // 要素类型选择改变处理事件
+            map.removeInteraction(drawer); // 移除绘制工具
+            vectorSource.clear(); // 清空之前绘制的内容
+            var type = event.target.value;
+            changDrawer(type); // 改变绘制工具
+        };
+        initDrawer(); // 初始化绘制工具
+        
+    }
+
+    /**
+     * 初始化绘制工具
+     */
+     function initDrawer() {
+        var type = document.getElementById("type").value;
+        changDrawer(type); // 改变绘制工具
+    }
+
+     /**
+     * 改变绘制工具
+     */
+    function changDrawer(type) {
+        if (type !== 'None') {
+            drawer = new ol.interaction.Draw({
+                source: vectorSource,
+                type: type
+            });
+            drawer.on("drawend", function (event) { // 监听绘制完成
+                map.removeInteraction(drawer); // 移除绘制工具
+            });
+            map.addInteraction(drawer);
+        }
+    }
+
+    /**
+     * 获取要素样式
+     */
+    function getFetureStyle(feature) {
+        return styles[feature.getGeometry().getType()];
+    };
+
+    /**
+     * 获取要素样式
+     */
+     function  clearVectorLayer() {
+        vectorSource.clear(); // 清空之前绘制的内容
+    }
+
+    /**
+     * 根据距离查询
+     */
+    function queryByGeometry () {
+        var features = vectorSource.getFeatures();
+        if (features && features.length > 0) {
+            var geometry = features[0].getGeometry(); // 获取数据源的几何要素
+            // 构造 Distance 查询参数。该类用于设置 Distance 查询的相关参数。
+            var param = new SuperMap.QueryByGeometryParameters({
+                queryParams: {name: "Capitals@World.1"},
+                geometry: geometry
+            });
+            // 地图查询服务类，根据距离查询
+            new ol.supermap.QueryService(url).queryByGeometry(param, function (serviceResult) { // 查询结果回调方法
+                if(serviceResult.result.recordsets && serviceResult.result.recordsets.length>0){
+                    var featureArr = serviceResult.result.recordsets[0].features; // 获取查询到要素集合
+                    var resultSource = new ol.source.Vector({ // 构造矢量图层的数据源
+                        features: (new ol.format.GeoJSON()).readFeatures(featureArr), // 要素集合，读取GeoJSON集合获取要素集合
+                        wrapX: false // 水平方向上不平铺
+                    });
+                    resultLayer.setSource(resultSource);
+                    }
+            });
+        }
+        
+    }
+</script>
+</html>

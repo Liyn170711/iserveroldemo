@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>RoutePlanning</title>
+    <link rel="stylesheet" href="../../../libs/ol/v6.5.0/ol.css">
+    <script src="https://unpkg.com/rbush@2.0.1/rbush.js"></script>
+    <script type="text/javascript" src="../../../libs/ol/v6.5.0/ol.js"> </script>
+    <script type="text/javascript" src="../../../libs/jquery/dist/jquery.min.js"> </script>
+    <!-- <script type="text/javascript" src="./routeplanning.js"> </script> -->
+    <script type="text/javascript" src="./dynamiceffect.js"> </script>
+    <style>
+      .body-container {
+        margin: 0;
+        overflow: hidden;
+        background: #fff;
+        width: 100%;
+        height: 100%;
+      }
+      .map-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      .toolbar {
+        position: absolute;
+        top: 15px;
+        width: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        width: 250px;
+        height: 150px;;
+      }
+      .lable-name {
+        font-size: 12px;
+        line-height: 25px;
+        color: #fff;
+        width: 40px;
+      }
+    </style>
+</head>
+<body class="body-container" onload="initMap()">
+  <div id="map" class="map-container"></div>
+  <div class='toolbar'>
+    <span id="startCoords" class="lable-name"></span><button onclick="handleSelectPoint('startCoords')">选取起点</button><br/>
+    <span id="endCoords" class="lable-name"></span><button onclick="handleSelectPoint('endCoords')">选取终点</button><br/>
+    <button onclick="routePlanning()">Route Planning</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!--********************************************************************
+* 地图瓦片图层 平面投影
+*********************************************************************-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>瓦片图层平面投影</title>
+    <link rel="stylesheet" href="../../libs/ol/v4.6.5/ol.css">
+    <script type="text/javascript" src="../../libs/ol/v4.6.5/ol-debug.js"></script>
+    <link rel="stylesheet" href="../../libs/iclient/iclient9-openlayers.css">
+    <script type="text/javascript" src="../../libs/iclient/iclient9-openlayers.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden; background: #fff; width: 100%; height: 100%;">
+    <div id="map" style="width: 100%; height: 100%; position: absolute;"></div>
+    <script> 
+        // 服务地址
+        var url = "http://support.supermap.com.cn:8090/iserver/services/map-changchun/rest/maps/长春市区图";
+        var extent = [48.4, -7668.25, 8958.85, -55.58]; // 边界范围：[minx, miny, maxx, maxy]（即[左，下，右，上]）
+        // 构造自定义投影
+        var projection = new ol.proj.Projection({
+            extent: extent, // 边界范围
+            units: 'm' // 范围
+        });
+        // 地图信息服务类，地图信息查询服务
+        new ol.supermap.MapService(url).getMapInfo(function (serviceResult) { // 回调函数
+            var mapJSONObj = serviceResult.result; // 地图信息查询结果
+            // 构造地图
+            var map = new ol.Map({ 
+                target: 'map', // 地图渲染目标DOM
+                controls: ol.control.defaults({attributionOptions: {collapsed: false}}) // 地图控件默认不折叠
+                    .extend([new ol.supermap.control.Logo()]), // 将 SuperMap Logo控件添加到地图控件集合中
+                view: new ol.View({ // 视图
+                    center: [5105, -3375], // 中心点经纬度坐标
+                    zoom: 1, // 默认地图缩放等级
+                    projection: projection, // 投影坐标
+                    origin: [48.4, -55.58] // 起始坐标
+                })
+            });
+            // 构造瓦片图层
+            var layer = new ol.layer.Tile({
+                // 设置图层数据源为 SuperMap iServer TileImage 数据源，从 MapJSON 中获取参数对象
+                source: new ol.source.TileSuperMapRest(ol.source.TileSuperMapRest.optionsFromMapJSON(url, mapJSONObj))
+            });
+            // 将图层添加到地图中
+            map.addLayer(layer);
+        });
+    </script>
+</body>
+</html>

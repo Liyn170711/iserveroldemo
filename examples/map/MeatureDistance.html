@@ -1,0 +1,73 @@
+<!--********************************************************************
+* 测量距离
+*********************************************************************-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测量距离</title>
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/css-loader/2.2.0/css-loader.css">
+    <script type="text/javascript" src="../../libs/js/widgets.js"></script>
+
+    <link rel="stylesheet" href="../../libs/ol/v4.6.5/ol.css">
+    <script type="text/javascript" src="../../libs/ol/v4.6.5/ol-debug.js"></script>
+    <link rel="stylesheet" href="../../libs/iclient/iclient9-openlayers.css">
+    <script type="text/javascript" src="../../libs/iclient/iclient9-openlayers.js"></script>
+</head>
+<body style=" margin: 0;overflow: hidden;background: #fff;width: 100%;height:100%">
+    <div id="map" style="width: 100%;height:100%; position: absolute;"></div>
+    <script type="text/javascript">
+        var interaction, // 交互
+            vectorLayer, // 矢量图层
+            feature, // 存储绘制的线要素
+            url = "http://support.supermap.com.cn:8090/iserver/services/map-world/rest/maps/World"; // 地图服务地址
+        // 构造地图
+        var map = new ol.Map({
+            target: 'map', // 地图渲染的目标dom
+            controls: ol.control.defaults({attributionOptions: {collapsed: false}}) // 地图控件默认不折叠
+                .extend([new ol.supermap.control.Logo()]), // 将 SuperMap Logo 添加到地图控件集合中
+            view: new ol.View({ // 视图
+                center: [0, 0], // 中心点坐标经纬度值
+                zoom: 3, // 默认缩放等级
+                projection: 'EPSG:4326' // 坐标系
+            })
+        });
+        // 构造瓦片
+        var layer = new ol.layer.Tile({
+            // 瓦片图层数据源为 SuperMap iServer TileMap 数据源
+            source: new ol.source.TileSuperMapRest({
+                url: url // 服务地址
+            }),
+            projection: 'EPSG:4326'
+        });
+        map.addLayer(layer); // 将瓦片图层添加到地图中
+        // 构造矢量图层数据源
+        var source = new ol.source.Vector({wrapX: false});
+        vectorLayer = new ol.layer.Vector({ // 构造矢量图层
+            source: source // 数据源
+        });
+        map.addLayer(vectorLayer); // 将矢量图层添加到地图中
+        interaction = new ol.interaction.Draw({
+            source: source, // 数据源
+            type: "LineString" // 几何类型
+        });
+        interaction.on('drawstart', function (evt) { // 交互监听开始绘制事件
+            source.clear(); // 清空之前的绘制
+            feature = evt.feature;
+        });
+        interaction.on('drawend', function () { // 交互监听绘制完成事件
+            var distanceMeasureParam = new SuperMap.MeasureParameters(feature.getGeometry()); // 量算参数类，用于距离测量和参数
+            // 距离测量服务，
+            new ol.supermap.MeasureService(url, {measureMode: ""}).measureDistance(distanceMeasureParam, function (serviceResult) { // 距离测量回调函数
+                widgets.alert.showAlert(serviceResult.result.distance + "米", true);
+            });
+        });
+        map.addInteraction(interaction); // 添加交互图层到地图中
+    </script>
+</body>
+</html>

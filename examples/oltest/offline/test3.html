@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载百度离线瓦片</title><!-- 瓦片坐标是BD09 墨卡托 -->
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+<script>
+    /***
+    ** 级别范围（0-18）
+    */
+    // 自定义分辨率和瓦片坐标系
+    var resolutions = [];
+    var maxZoom = 18;
+    var tileSize = [256, 256];          // 瓦片大小
+
+    // 计算百度使用的分辨率
+    for(var i=0; i<=19; i++){
+        resolutions[i] = Math.pow(2, maxZoom-i);
+    }
+    var tilegrid  = new ol.tilegrid.TileGrid({
+        origin: [0,0],    // 设置原点坐标
+        resolutions: resolutions,    // 设置分辨率
+        tileSize: tileSize
+    });
+    console.log('resolutions: ', resolutions)
+
+  // 创建百度地图的数据源
+    var baiduSource = new ol.source.TileImage({
+        projection: 'EPSG:3857',    
+        tileGrid: tilegrid,
+        tileUrlFunction: function(tileCoord, pixelRatio, proj){
+            var z = tileCoord[0];
+            var x = tileCoord[1];
+            var y = tileCoord[2];
+            // 百度瓦片服务url将负数使用M前缀来标识
+            if(x<0){
+                x = 'M' + (-x);
+            }
+            if(y<0){
+                y = 'M' + (-y);
+            }
+            return "./tilebd09//" + z + "/" + x + "/" + y + ".png";
+        }
+    });
+
+    // 百度地图层
+    var baiduMapLayer2 = new ol.layer.Tile({
+        source: baiduSource
+    });
+    //调试瓦片图层
+    var tileDebugLayer = new ol.layer.Tile({
+        source: new ol.source.TileDebug({
+            projection: 'EPSG:3857',
+            tileGrid: baiduSource.getTileGrid(),
+        })
+    });
+
+    // 创建地图
+    var map = new ol.Map({
+        layers: [
+            baiduMapLayer2
+        ],
+        view: new ol.View({
+            // center: [12948654.108110826, 4862490.168718785], // 从tms.xml中计算得出的中心，有偏移需要转换为 BD09 坐标
+            center: [12948734.184238855, 4834830.741590464],
+            zoom: 17,
+            minZoom: 0,
+            maxZoom: 18
+        }),
+        target: 'map'
+    });
+    map.getView().on('change:resolution', ev => {
+        var zoom = map.getView().getZoom()
+        var center = map.getView().getCenter()
+        var extent = map.getView().calculateExtent(map.getSize())
+        console.log('zoom: ', zoom)
+        console.log('center: ', center)
+        console.log('extent: ', extent)
+      })
+    // map.addLayer(tileDebugLayer)
+</script>
+</html>

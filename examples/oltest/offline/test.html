@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer瓦片网格调试</title>
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+<script>
+    var resolutions = [
+        156543.0339280410,
+        78271.5169640205,
+        39135.7584820102,
+        19567.8792410051,
+        9783.9396205026,
+        4891.9698102513,
+        2445.9849051256,
+        1222.9924525628,
+        611.4962262814,
+        305.7481131407,
+        152.8740565704,
+        76.4370282852,
+        38.2185141426,
+        19.1092570713,
+        9.5546285356,
+        4.7773142678,
+        2.3886571339,
+        1.1943285670,
+        0.5971642835,
+        0.2985821417
+    ];   
+    var tileSize = [256, 256];          // 瓦片大小
+    //深圳地区
+    var extent = [12946414.731221487745643, 4860811.923306286334991, 12949467.829592391848564, 4862681.582596957683563];
+    var center = [(extent[0] + extent[2])/2.0, (extent[1] + extent[3])/2.0];
+    var origin = [-20037508.3427890, -20037508.3427890];
+    // 初始化分辨率数组
+    var tileGrid = new ol.tilegrid.TileGrid({
+        // 投影坐标系范围的左下角作为瓦片坐标系原点
+        origin: origin,      
+        resolutions: resolutions,
+        extent: extent,
+        tileSize: tileSize
+    });
+    var map = new ol.Map({
+        target: 'map',
+        layers: [
+            // 调试瓦片
+            new ol.layer.Tile({
+                source: new ol.source.TileDebug({
+                    projection: 'EPSG:3857',
+                    tileGrid: tileGrid,
+                    wrapX: false
+                })
+            })
+        ],
+        view: new ol.View({
+            projection: 'EPSG:3857',
+            center: center,       //深圳
+            resolutions: resolutions,
+            zoom: 7
+        })
+    });
+</script>
+</html>

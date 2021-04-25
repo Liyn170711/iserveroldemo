@@ -1,0 +1,21 @@
+<!--********************************************************************
+* openlayers 加载 geoserver 发布的百度tif图片（基于BD09 墨卡托坐标）
+* 实验结果：加载的坐标偏移严重，无法用于带有gps经纬度相关显示的应用
+*********************************************************************-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MultiLayer</title>
+  <link rel="stylesheet" href="../../../../libs/ol/openlayers/dist/ol.css">
+  <script type="text/javascript" src="../../../../libs/ol/openlayers/dist/ol.js"></script>
+  <script type="text/javascript" src="./bd09.js"></script>
+  <script type="text/javascript" src="./transformcoord.js"></script>
+  <script type="text/javascript" src="./multiLayer.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden; background: #fff; width: 100%; height: 100%;">
+  <div id="map" style="width: 100%; height: 100%; position: absolute;"></div>
+</body>
+</html>

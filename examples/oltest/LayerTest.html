@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>LayerTest</title>
+    <link rel="stylesheet" href="../../libs/ol/v4.6.5/ol.css">
+    <script type="text/javascript" src="../../libs/ol/v4.6.5/ol-debug.js"> </script>
+</head>
+<body style="margin: 0; overflow: hidden; background: #fff; width: 100%; height: 100%;">
+    <div id="map" style="position: absolute; width: 100%; height: 100%;"></div>
+</body>
+<script type="text/javascript">
+    // 瓦片底图
+    var baseLayer = new ol.layer.Tile({
+        source: new ol.source.OSM()
+    });
+    // 矢量数据图层，访问geoserver的wfs服务，获取要素的geojson矢量数据，此处涉及到跨域的问题无法访问到
+    // var vectorLayer = new ol.layer.Vector({
+    //     source: new ol.source.Vector({ // 数据源
+    //         format: new ol.format.GeoJSON(),
+    //         url: "http://localhost:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetFeature&typeNames=nyc_roads:nyc_roads&outputFormat=application/json&srsname=EPSG:4326"
+    //     }),
+    //     style: new ol.style.Style({ // 样式
+    //         stroke: new ol.style.Stroke({color: "blue", width: 1}) // 边框
+    //     })
+    // });
+    // 瓦片数据图层
+    var tileLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url:'http://127.0.0.1:8080/geoserver/nyc_roads/wms',    
+            params:{    
+                'LAYERS': 'nyc_roads:nyc_roads',//此处可以是单个图层名称，也可以是图层组名称，或多个图层名称
+                'TILED': false    
+            },    
+            serverType: 'geoserver'    //服务器类型
+        })
+    });
+    var map = new ol.Map({
+        target: "map",
+        layers: [   baseLayer,
+                    tileLayer,
+                    // vectorLayer
+                ],
+        view: new ol.View({
+            center: [-73.99710639567148, 40.742270050255556],
+            maxZoom: 19,
+            zoom: 14,
+            projection: 'EPSG:4326'
+        })
+    })
+</script>
+</html>

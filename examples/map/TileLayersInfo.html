@@ -1,0 +1,112 @@
+<!--********************************************************************
+* SuperMap 图层信息
+*********************************************************************-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SuperMap 图层信息</title>
+    <link rel="stylesheet" href="../../libs/ol/v4.6.5/ol.css">
+    <script type="text/javascript" src="../../libs/ol/v4.6.5/ol-debug.js"></script>
+    <link rel="stylesheet" href="../../libs/iclient/iclient9-openlayers.css">
+    <script type="text/javascript" src="../../libs/iclient/iclient9-openlayers.js"></script>
+    <style>
+        /* ol弹出层样式 */
+        .ol-popup {
+            position: absolute;
+            background-color: white;
+            -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            bottom: 12px;
+            left: -50px;
+            min-width: 380px;
+        }
+        /* ol弹出层样式渲染前、后通用的样式 */
+        .ol-popup:after, .ol-popup:before {
+            top: 100%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+        /* ol弹出层渲染后的样式 */
+        .ol-popup:after {
+            border-top-color: white;
+            border-width: 10px;
+            left: 48px;
+            margin-left: -10px;
+        }
+        /* ol弹出层渲染前的样式 */
+        .ol-popup:before {
+            border-top-color: #cccccc;
+            border-width: 11px;
+            left: 48px;
+            margin-left: -11px;
+        }
+    </style>
+</head>
+<body style=" margin: 0;overflow: hidden;background: #fff;width: 100%;height:100%">
+    <div id="map" style="width: 100%;height:100%; position: absolute;"></div>
+    <div id="popup" class="ol-popup">
+        <div id="popup-content"></div>
+    </div>
+    <script type="text/javascript">
+        var container = document.getElementById('popup'); // 获取弹出层的dom
+        var content = document.getElementById('popup-content'); // 获取弹出层内容的dom
+        // 构造地图上的覆盖层
+        var overlay = new ol.Overlay(({
+            element: container, // 元素，渲染的目标dom
+            autoPan: true, // 控制覆盖层在视图中
+            autoPanAnimation: { // 地图自动移动到覆盖层视图的动画效果
+                duration: 250 // 动画延迟，时间：毫秒
+            }
+        }));
+        // 服务地址
+        var url = "http://support.supermap.com.cn:8090/iserver/services/map-world/rest/maps/World";
+        // 构造地图
+        var map = new ol.Map({
+            target: 'map', // 地图渲染的目标dom
+            controls: ol.control.defaults({attributionOptions: {collapsed: false}}) // 设置地图控件默认不折叠
+                .extend([new ol.supermap.control.Logo()]), // 将 SuperMap Logo 控件添加到地图控件集合中
+            view: new ol.View({ // 视图
+                center: [0, 0], // 中心经纬度坐标值
+                zoom: 2, // 默认缩放等级
+                projection: 'EPSG:4326' // 地图坐标系
+            }),
+            overlays: [overlay] // 覆盖层集合
+        });
+        // 构造瓦片图层
+        var layer = new ol.layer.Tile({
+            // 设置图层数据源为 SuperMap iServer TileImage 数据源
+            source: new ol.source.TileSuperMapRest({
+                url: url // 服务地址
+            }),
+            projection: 'EPSG:4326' // 坐标系
+        });
+        map.addLayer(layer); // 将图层添加到地图中
+        layerService(); // 获取 SuperMap 图层信息
+
+        /**
+         * 获取图层信息
+        */
+        function layerService() {
+            // 图层信息服务类，获取图层信息服务
+            new ol.supermap.LayerInfoService(url).getLayersInfo(function (serviceResult) { // 获取图层信息之后的回调函数
+                var innerHtml = ""; // 内置html
+                serviceResult.result.subLayers.layers.map(function (layer) { // 遍历图层信息
+                    innerHtml += layer.name + "<br>";
+                });
+                content.innerHTML = innerHtml;
+                overlay.setPosition([0, 0]);
+            });
+        }
+    </script>
+</body>
+</html>

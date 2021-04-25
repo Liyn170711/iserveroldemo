@@ -1,0 +1,29 @@
+<!--********************************************************************
+* 测试openlayers 加载 通过 wmts 能力集 加载wmts 图层
+注意：geoserver发布时，通过获取能力集自动加载 服务时，适合现有的切片网格 gridSet(EPSG:900913, EPSG:3857, EPSG:4326)
+自定义的网格切片，暂不支持，尝试未成功
+TODO：加载自定义的网格切片，需要手动解析 wmts-getcapabilities.xml 配置文件，
+      然后获取加载 图层所需要的 
+      matrixSet(切片网格矩阵集), layer(图层), matrixIds(切片切片网格标识), extent(地图边界，左下-右上)，
+      origin(切片起始点)，resolutions(分辨率数组), projection(地图投影坐标系)
+      （注意：加载 geoserver切片 origin 是左上点，加载 ArcGIS Server 切片 origin （WGS84下默认是（-400,400），具体可从 config.xml 里获取 TileOrigin））
+*********************************************************************-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>WMTSLayerFromCapabilities</title>
+  <!-- <link rel="stylesheet" href="../../../libs/ol/v5.2.0/ol.css"> -->
+  <!-- <script type="text/javascript" src="../../../libs/ol/v5.2.0/ol.js"></script> -->
+  <!-- <link rel="stylesheet" href="../../../libs/ol/v4.6.5/ol.css">
+  <script type="text/javascript" src="../../../libs/ol/v4.6.5/ol-debug.js"></script> -->
+  <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+  <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+  <script type="text/javascript" src="./capabilitiesOther.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden; background: #fff; width: 100%; height: 100%;">
+  <div id="map" style="width: 100%; height: 100%; position: absolute;"></div>
+</body>
+</html>
