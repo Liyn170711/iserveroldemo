@@ -14,11 +14,12 @@ fetch('http://127.0.0.1:8016/geoserver/gwc/service/wmts?REQUEST=getcapabilities'
       // layer: 'sf:streams',
       // matrixSet: 'EPSG:900913',
       layer: 'tjnu:back',
-      matrixSet: 'EPSG:4326'
+      matrixSet: 'EPSG:4326',
+      format: 'image/png8'
     });
     console.log('解析后的参数信息', options)
-    var centerX = (options.tileGrid.extent_[0] + options.tileGrid.extent_[2]) / 2
-    var centerY = (options.tileGrid.extent_[1] + options.tileGrid.extent_[3]) / 2
+    var centerX = (options.tileGrid.o[0] + options.tileGrid.o[2]) / 2
+    var centerY = (options.tileGrid.o[1] + options.tileGrid.o[3]) / 2
     console.log('解析到的中心点信息', [centerX, centerY])
     var map = new ol.Map({
         layers: [
