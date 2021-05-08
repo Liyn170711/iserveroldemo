@@ -60,72 +60,112 @@ function init(){
   
   /***监听地图点击事件**************************************************/
   map.on('singleclick', function(evt) {
-    document.getElementById('info').innerHTML = '';
-  
-    var source = layer.getSource();
-    var resolution = view.getResolution();
-    var tilegrid = source.getTileGrid();
-    var tileResolutions = tilegrid.getResolutions();
-    var zoomIdx, diff = Infinity;
-  
-    for (var i = 0; i < tileResolutions.length; i++) {
-        var tileResolution = tileResolutions[i];
-        var diffP = Math.abs(resolution-tileResolution);
-        if (diffP < diff) {
-            diff = diffP;
-            zoomIdx = i;
-        }
-        if (tileResolution < resolution) {
-          break;
-        }
-    }
-    var tileSize = tilegrid.getTileSize(zoomIdx);
-    var tileOrigin = tilegrid.getOrigin(zoomIdx);
-  
-    var fx = (evt.coordinate[0] - tileOrigin[0]) / (resolution * tileSize[0]);
-    var fy = (tileOrigin[1] - evt.coordinate[1]) / (resolution * tileSize[1]);
-    var tileCol = Math.floor(fx);
-    var tileRow = Math.floor(fy);
-    var tileI = Math.floor((fx - tileCol) * tileSize[0]);
-    var tileJ = Math.floor((fy - tileRow) * tileSize[1]);
-    var matrixIds = tilegrid.getMatrixIds()[zoomIdx];
-  
-    var url = baseUrl+'?'
-    for (var param in params) {
-      if (param.toUpperCase() == 'TILEMATRIX') {
-        url = url + 'TILEMATRIX='+matrixIds+'&';
-      } else {
-        url = url + param + '=' + params[param] + '&';
-      }
-    }
-  
-    url = url
-      + 'SERVICE=WMTS&REQUEST=GetFeatureInfo'
-      + '&INFOFORMAT=' +  infoFormat
-      + '&TileCol=' +  tileCol
-      + '&TileRow=' +  tileRow
-      + '&I=' +  tileI
-      + '&J=' +  tileJ;
-  
-    if (url) {
-      document.getElementById('info').innerHTML = 'Loading... please wait...';
-      var xmlhttp = new XMLHttpRequest();    
-      xmlhttp.onreadystatechange = function() {
-          if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-              if (xmlhttp.status == 200) {
-                // 获取要素信息响应信息格式 infoFormat = 'text/html'
-                document.getElementById('info').innerHTML = xmlhttp.responseText; 
-                // 获取要素信息响应信息格式 infoFormat = 'application/vnd.ogc.gml' 需要gml（即xml）转换为json格式，然后再获取所需要的信息
-                // let json = x2js.xml_str2json(xmlhttp.responseText)
-                // console.log('responseText to json:', json)
-              }
-              else {
-                document.getElementById('info').innerHTML = '';
-              }
-          }
-      }
-    xmlhttp.open('GET', url, true);
-    xmlhttp.send();
-    }
+    // pickByWMTSGetFeatureInfo(evt) // 点选通过wmts GetFeatureInfo 获取要素
+    pickByWFSGetFeature(evt) // 点选通过wmts GetFeatureInfo 获取要素
   });
+}
+
+ /**
+ * @description: 点选通过wmts GetFeatureInfo 获取要素
+ * @param: evt 事件参数
+ * @date: 2021-5-8 15:40:05
+ */
+function pickByWMTSGetFeatureInfo(evt) {
+  document.getElementById('info').innerHTML = '';
+  
+  var source = layer.getSource();
+  var resolution = view.getResolution();
+  var tilegrid = source.getTileGrid();
+  var tileResolutions = tilegrid.getResolutions();
+  var zoomIdx, diff = Infinity;
+
+  for (var i = 0; i < tileResolutions.length; i++) {
+      var tileResolution = tileResolutions[i];
+      var diffP = Math.abs(resolution-tileResolution);
+      if (diffP < diff) {
+          diff = diffP;
+          zoomIdx = i;
+      }
+      if (tileResolution < resolution) {
+        break;
+      }
+  }
+  var tileSize = tilegrid.getTileSize(zoomIdx);
+  var tileOrigin = tilegrid.getOrigin(zoomIdx);
+
+  var fx = (evt.coordinate[0] - tileOrigin[0]) / (resolution * tileSize[0]);
+  var fy = (tileOrigin[1] - evt.coordinate[1]) / (resolution * tileSize[1]);
+  var tileCol = Math.floor(fx);
+  var tileRow = Math.floor(fy);
+  var tileI = Math.floor((fx - tileCol) * tileSize[0]);
+  var tileJ = Math.floor((fy - tileRow) * tileSize[1]);
+  var matrixIds = tilegrid.getMatrixIds()[zoomIdx];
+
+  var url = baseUrl+'?'
+  for (var param in params) {
+    if (param.toUpperCase() == 'TILEMATRIX') {
+      url = url + 'TILEMATRIX='+matrixIds+'&';
+    } else {
+      url = url + param + '=' + params[param] + '&';
+    }
+  }
+
+  url = url
+    + 'SERVICE=WMTS&REQUEST=GetFeatureInfo'
+    + '&INFOFORMAT=' +  infoFormat
+    + '&TileCol=' +  tileCol
+    + '&TileRow=' +  tileRow
+    + '&I=' +  tileI
+    + '&J=' +  tileJ;
+
+  if (url) {
+    document.getElementById('info').innerHTML = 'Loading... please wait...';
+    var xmlhttp = new XMLHttpRequest();    
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
+            if (xmlhttp.status == 200) {
+              // 获取要素信息响应信息格式 infoFormat = 'text/html'
+              document.getElementById('info').innerHTML = xmlhttp.responseText; 
+              // 获取要素信息响应信息格式 infoFormat = 'application/vnd.ogc.gml' 需要gml（即xml）转换为json格式，然后再获取所需要的信息
+              // let json = x2js.xml_str2json(xmlhttp.responseText)
+              // console.log('responseText to json:', json)
+            }
+            else {
+              document.getElementById('info').innerHTML = '';
+            }
+        }
+    }
+  xmlhttp.open('GET', url, true);
+  xmlhttp.send();
+  }
+}
+
+ /**
+ * @description: 点选通过wmts GetFeatureInfo 获取要素
+ * @param: evt 事件参数
+ * @date: 2021-5-8 15:40:00
+ */
+function pickByWFSGetFeature (evt) {
+  let coor = evt.coordinate;
+  let delta = 0.0001
+  let coors = [coor[0]-delta, coor[1]-delta,coor[0]+delta, coor[1]+delta]
+  //注意这里直接将点坐标提交，与图层做intersrct分析，对于面图层是没关系的。如果是查询，点或者线图形，一定要将coor先设置一个容差，经行buffer之后的图形，再去与图层叠加分析。不设置容差几乎就找不到了
+  //图层的图形字段是geom，不同图层的图形字段都要自己先看下自己的，有的是the_geom，有的是shape等等，具体分析即可。
+  // let filter=`filter=<Filter xmlns="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml"><Intersects><PropertyName>geom</PropertyName><gml:Polygon><gml:Point>${coor.join(',')}</gml:coordinates></gml:Point></Intersects></Filter>`
+  //url: "http://localhost:8080/geoserver/xcy/wfs?service=WFS&request=GetFeature&version=1.1.0&typename=xcy:polygon&outputFormat=json&CQL_FILTER=EntityHand='7E25'",
+  //属性查询
+  //url: "http://localhost:8080/geoserver/xcy/wfs?service=WFS&request=GetFeature&version=1.1.0&typename=xcy:polygon&outputFormat=json&PROPERTYNAME=Layer&FEATUREID=polygon.2",
+  //空间查询
+  let url = `http://localhost:8032/geoserver/china/wfs?service=WFS&request=GetFeature&version=1.1.0&typename=china:province_region&outputFormat=json&${filter}`
+  let url = `http://localhost:8032/geoserver/china/wfs?service=WFS&request=GetFeature&version=1.1.0&typename=china:province_region&outputFormat=json&srsname=EPSG:4326&bbox=${coors.join(',')},EPSG:4326`
+                    
+  let xmlhttp = new window.XMLHttpRequest()
+    xmlhttp.open('get', url, true)
+    xmlhttp.send(null)
+    xmlhttp.onreadystatechange = function(res) {
+      if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+        let response = res.currentTarget.responseText
+        console.log('获取到的响应信息：', response)
+      }
+    }
 }
