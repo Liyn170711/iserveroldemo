@@ -89,7 +89,7 @@ function routePlanning () {
   let wmsURL =  'http://localhost:8032/geoserver/test/wms'
   let params = {
     LAYERS: '	test:railway_routetest',
-    FORMAT: 'geojson',
+    FORMAT: 'image/png',
   };
   let viewParams = [
     'x1:' + startCoords[0],
