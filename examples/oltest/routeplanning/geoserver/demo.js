@@ -9,8 +9,11 @@
 	栅格方式：访问WMS瓦片需要提前把路径样式发布到geoserver中，不可以动态自定义展示的路径样式；
 	矢量数据实现方式：通过WMS服务请求到geojson数据，在通过openlayer将geojson数据渲染出来，这样可以自定义展示的样式；-》 不可行；
 	验证结论：
-	栅格瓦片：openlayer加载geoserver发布的wms服务用于访问sql视图添加viewParams参数；
-	矢量数据：openlayer通过服务端写个查询接口通过postgresql数据库中自定义的函数访问到geojson数据，openlayer再将数据展示到矢量图层中；
+	栅格瓦片：
+  openlayer加载geoserver发布的wms服务用于访问sql视图添加viewParams参数；
+	矢量数据：
+  ①通过WFS服务请求到geojson数据，在通过openlayer将geojson数据渲染出来，这样可以自定义展示的样式；
+  ②openlayer通过服务端写个查询接口通过postgresql数据库中自定义的函数访问到geojson数据，openlayer再将数据展示到矢量图层中；
  */
 var map
 var startCoords = [108.30322265625001, 33.81591796875] // 起点坐标
@@ -22,9 +25,10 @@ let workspace = 'test'
 let layerName = 'test:railway_routetest'
 let extent = [108.28254699707, 34.2608299255371, 113.01146697998, 35.2051544189453]
 let routeLayer // 路径图层
-let route_wmsImageLayer // 路径图层 wms Image图层
-let route_wmsTileLayer // 路径图层 wms Tile图层
-
+var routeWMSImageLayer // 路径图层 wms Image图层
+var routeWMSTileLayer // 路径图层 wms Tile图层
+var routeVectorLayer // 路径图层 vector 图层
+let layerMetas = ['WMSImage', 'WMSTile', 'Vector']
 
  /**
  * @description: 初始化地图
@@ -43,7 +47,7 @@ function initMap () {
   map = new ol.Map({
     target: 'map',
     layers: [ 
-      backLayer, route_wmsImageLayer, route_wmsTileLayer
+      backLayer
     ],
     view: new ol.View({
       projection,
@@ -59,13 +63,24 @@ function initMap () {
  */
 function initRouteLayer () {
   // 路径图层 wms Image图层
-  route_wmsImageLayer = new ol.layer.Image({
+  routeWMSImageLayer = new ol.layer.Image({
     opacity: 0.5
   });
   // 路径图层 wms Tile图层
-  route_wmsTileLayer = new ol.layer.Tile({
+  routeWMSTileLayer = new ol.layer.Tile({
     opacity: 0.5
   });
+  // 路径图层 vector 图层
+  routeVectorLayer = new ol.layer.Vector({
+    opacity: 0.5,
+    style: new ol.style.Style({
+      stroke: new ol.style.Stroke({
+        color: 'green',
+        width: 2
+      })
+    })
+  });
+
 }
 
  /**
@@ -99,16 +114,22 @@ function routePlanning () {
   ];
   console.log('请求的起点、终点坐标参数：', viewParams);   
   params.viewParams = viewParams.join(';');
-  // showRouteInImageLayer(wmsURL, params) // 在 WMS Image 图层中显示路径 
-  showRouteInWMSTileLayer(wmsURL, params) // 在 WMS Tile 图层中显示路径
+  let layerSelection = $('#layerSelection').val()
+  for (const layerMeta of layerMetas) {
+    let layerProperty = `route${layerMeta}Layer`
+    let layer = this[layerProperty]
+    layerMeta !== layerSelection ? map.removeLayer(layer) : map.addLayer(layer)
+  }
+  let shouRouteFunction = this[`showRouteIn${layerSelection}Layer`]
+  shouRouteFunction && shouRouteFunction(wmsURL, params) // 在选中的图层中显示路径
 }
 
  /**
  * @description: 在 WMS Image 图层中显示路径 
  * @date: 2021-5-20 11:25:57
  */
-function showRouteInImageLayer (url, params) {
-  route_wmsImageLayer.setSource(new ol.source.ImageWMS({
+function showRouteInWMSImageLayer (url, params) {
+  routeWMSImageLayer.setSource(new ol.source.ImageWMS({
     url,
     params
   }))
@@ -118,8 +139,8 @@ function showRouteInImageLayer (url, params) {
  * @description: 在 WMS Tile 图层中显示路径
  * @date: 2021-5-20 11:29:56
  */
-function  showRouteInWMSTileLayer(url, params) {
-  route_wmsTileLayer.setSource(
+function showRouteInWMSTileLayer(url, params) {
+  routeWMSTileLayer.setSource(
     new ol.source.TileWMS({
       url,
       serverType: 'geoserver',
@@ -127,6 +148,21 @@ function  showRouteInWMSTileLayer(url, params) {
     })
   )
 }
+ /**
+ * @description: 在 Vector 图层中显示路径
+ * @date: 2021-5-27 15:25:21
+ */
+async function showRouteInVectorLayer(...remaining) {
+  let routeData = await requestRouteData()
+  routeVectorLayer.setSource(
+    new ol.source.Vector({
+      features: (new ol.format.GeoJSON()).readFeatures(routeData),
+      wrapX: false
+    })
+  )
+}
+
+
 
  /**
  * @description: ajax请求方法
@@ -154,12 +190,12 @@ function $ajax(type, url, sucCalback) {
  */
 function requestRouteData () {
   return new Promise((resolve, reject) => {
-    let url = `http://127.0.0.1:8032/geoserver/${workspace}/wms?service=WMS&version=1.1.0&request=GetMap&layers=${layerName}&bbox=${extent.toString()}&width=768&height=330&srs=EPSG:4326&format=geojson&viewParams=x1:${startCoords[0]};y1:${startCoords[1]};x2:${endCoords[0]};y2:${endCoords[1]}`
+    let url = `http://127.0.0.1:8032/geoserver/${workspace}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${layerName}&maxFeatures=50&outputFormat=application/json&viewParams=x1:${startCoords[0]};y1:${startCoords[1]};x2:${endCoords[0]};y2:${endCoords[1]}`
     console.log('请求路径数据地址：', url)
     $ajax('get', url).then(response => {
-      let routeDate = JSON.parse(JSON.stringify(response))
-      console .log('请求到的路径数据：', routeDate)
-      resolve(routeDate)
+      let routeData = JSON.parse(JSON.stringify(response))
+      console .log('请求到的路径数据：', routeData)
+      resolve(routeData)
     }).catch(error => {
       reject('请求路径数据失败', error, )
     })

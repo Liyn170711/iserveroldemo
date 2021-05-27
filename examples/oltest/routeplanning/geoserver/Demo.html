@@ -33,15 +33,15 @@
 <body onload="initMap()">
     <div id="map"></div>
     <div class='toolbar'>
-        <select id="type">
-            <option value="ImageWMS">ImageWMS</option>
-            <option value="TileWMS">TileWMS</option>
-            <option value="TileWMSC">TileWMSC</option>
-            <option value="TileWMTS">TileWMTS</option>
-            <option value="VectorTile">VectorTile</option>
+        <select id="layerSelection">
+            <option value="WMSImage">WMSImage</option>
+            <option value="WMSTile">WMSTile</option>
+            <option value="Vector">Vector</option>
         </select><br/>
-        <span id="startCoords" class="lable-name"></span><button onclick="handleSelectPoint('startCoords')">选取起点</button><br/>
-        <span id="endCoords" class="lable-name"></span><button onclick="handleSelectPoint('endCoords')">选取终点</button><br/>
+        <span id="startCoords" class="lable-name"></span><br/>
+        <button onclick="handleSelectPoint('startCoords')">选取起点</button><br/>
+        <span id="endCoords" class="lable-name"></span><br/>
+        <button onclick="handleSelectPoint('endCoords')">选取终点</button><br/>
         <button onclick="routePlanning()">路径规划</button>
     </div>
 </body>
