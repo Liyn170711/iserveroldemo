@@ -77,14 +77,14 @@
     var tian_di_tu_road_layer = new ol.layer.Tile({
         title: "天地图路网",
         source: new ol.source.XYZ({
-            url: "http://t4.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}"
+            url: "http://t4.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63"
         })
     });
     //天地图注记
     var tian_di_tu_annotation = new ol.layer.Tile({
         title: "天地图文字标注",
         source: new ol.source.XYZ({
-            url: 'http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}'
+            url: 'http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63'
         })
     });
  
@@ -92,9 +92,22 @@
     var tian_di_tu_satellite_layer = new ol.layer.Tile({
         title: "天地图卫星影像",
         source: new ol.source.XYZ({
-            url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}'
+            url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63'
         })
     });
+
+    var map = new ol.Map({
+        target: 'map',//地图标签id
+        layers: [],
+        view: new ol.View({
+            center: [12519281, 4118382],//地图中心点位置
+            zoom: 12
+        })
+    });
+    // map.addLayer(tian_di_tu_road_layer); //天地图路网
+    // map.addLayer(tian_di_tu_annotation);//天地图注记
+    map.addLayer(tian_di_tu_satellite_layer);//天地图卫星影像
+
    //所有坐标为西安北站为中心点，下面坐标位置都是在相对应的的地图下获取的
     /*
     谷歌地图和天地图、高德地图   EPSG:4326
@@ -115,15 +128,15 @@
     // });
  
 //加载其他的wgs84的
-    var map=new ol.Map({
-        layers:[googleMapLayer],
-        target:'map',
-        view:new ol.View({
-            projection:'EPSG:4326',
-            zoom:10,
-            center:[108.939819,34.37271]
-        })
-    })
+    // var map=new ol.Map({
+    //     layers:[gaodeLayer],
+    //     target:'map',
+    //     view:new ol.View({
+    //         projection:'EPSG:4326',
+    //         zoom:10,
+    //         center:[108.939819,34.37271]
+    //     })
+    // })
     // 百度地图层
 //     var baiduMapLayer = new ol.layer.Tile({
 //         source: new ol.source.XYZ({

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载高德地图</title>
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=wNdy48s7V1izbLL0ziswArXq"></script> -->
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+ 
+<script>
+    //高德地图
+   var gaodeLayer = new ol.layer.Tile({
+       source: new ol.source.XYZ({
+        //    url:'http://webst0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}'
+            /** 
+             * type: 5-poi标注层，7-平面+poi，11-平面
+             * style：6-卫星影像，7-全要素（比交通图多绿地、湖、河流等)，8-交通图
+            */
+           url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=16' // 全要素
+        //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=7' // 全要素+poi
+        //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=7' // 交通+poi
+        //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=5' // poi层
+        //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=6&x={x}&y={y}&z={z}&scl=1&ltype=11' // 遥感影像
+       })
+   });
+
+   //全要素
+   var back_layer = new ol.layer.Tile({
+        title: "全要素",
+        source: new ol.source.XYZ({
+            url: "https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=11"
+        })
+    });
+   //全要素+poi
+   var back_poi_layer = new ol.layer.Tile({
+        title: "全要素+poi",
+        source: new ol.source.XYZ({
+            url: "https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=7"
+        })
+    });
+   //路网
+   var road_layer = new ol.layer.Tile({
+        title: "路网",
+        source: new ol.source.XYZ({
+            url: "https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=11"
+        })
+    });
+   //路网+poi
+   var road_poi_layer = new ol.layer.Tile({
+        title: "路网+poi",
+        source: new ol.source.XYZ({
+            url: "https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=7"
+        })
+    });
+
+    // 文字标注
+    var annotation = new ol.layer.Tile({
+        title: "文字标注",
+        source: new ol.source.XYZ({
+            url: 'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=5'
+        })
+    });
+ 
+    //卫星地图
+    var satellite_layer = new ol.layer.Tile({
+        title: "卫星影像",
+        source: new ol.source.XYZ({
+            url: 'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=6&x={x}&y={y}&z={z}&scl=1&ltype=11'
+        })
+    });
+
+    var map=new ol.Map({
+        layers: [],
+        target: 'map',
+        view:new ol.View({
+            projection: 'EPSG:4326',
+            zoom: 10,
+            center: [108.9389705658,34.3752497164]
+        })
+    })
+
+    // map.addLayer(back_poi_layer); // back
+    map.addLayer(satellite_layer); // 平面图
+    map.addLayer(annotation); // poi
+ 
+</script>
+</html>

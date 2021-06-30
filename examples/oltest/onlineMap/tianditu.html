@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载天地图在线地图</title>
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=wNdy48s7V1izbLL0ziswArXq"></script> -->
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+ 
+<script>
+    //天地图路网
+    var tian_di_tu_road_layer = new ol.layer.Tile({
+        title: "天地图路网",
+        source: new ol.source.XYZ({
+            url: "http://t4.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63"
+        })
+    });
+    //天地图注记
+    var tian_di_tu_annotation = new ol.layer.Tile({
+        title: "天地图文字标注",
+        source: new ol.source.XYZ({
+            url: 'http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63'
+        })
+    });
+ 
+    //天地图卫星地图
+    var tian_di_tu_satellite_layer = new ol.layer.Tile({
+        title: "天地图卫星影像",
+        source: new ol.source.XYZ({
+            url: 'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=49ea1deec0ffd88ef13a3f69987e9a63'
+        })
+    });
+
+    var map = new ol.Map({
+        target: 'map',//地图标签id
+        layers: [],
+        view: new ol.View({
+            center: [12519281, 4118382],//地图中心点位置
+            zoom: 12
+        })
+    });
+
+    map.addLayer(tian_di_tu_road_layer); //天地图路网
+    map.addLayer(tian_di_tu_satellite_layer);//天地图卫星影像 
+    map.addLayer(tian_di_tu_annotation);//天地图注记
+</script>
+</html>

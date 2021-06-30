@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载常见在线地图案例</title>
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=wNdy48s7V1izbLL0ziswArXq"></script> -->
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+ 
+<script>
+      //百度地图
+    // 自定义分辨率和瓦片坐标系
+    var resolutions = [];
+    var maxZoom = 18;
+ 
+    // 计算百度使用的分辨率
+    for(var i=0; i<=maxZoom; i++){
+        resolutions[i] = Math.pow(2, maxZoom-i);
+    }
+    var tilegrid  = new ol.tilegrid.TileGrid({
+        origin: [0,0],    // 设置原点坐标
+        resolutions: resolutions    // 设置分辨率
+    });
+ 
+    // 创建百度地图的数据源
+    var baiduSource = new ol.source.TileImage({
+        projection: 'EPSG:3857',
+        tileGrid: tilegrid,
+        tileUrlFunction: function(tileCoord, pixelRatio, proj){
+            var z = tileCoord[0];
+            var x = tileCoord[1];
+            var y = tileCoord[2];
+ 
+            // 百度瓦片服务url将负数使用M前缀来标识
+            if(x<0){
+                x = 'M' + (-x);
+            }
+            if(y<0){
+                y = 'M' + (-y);
+            }
+            // return "http://online0.map.bdimg.com/onlinelabel/?qt=tile&x="+x+"&y="+y+"&z="+z+"&styles=pl&udt=20151021&scaler=1&p=1";
+            // return 'http://online2.map.bdimg.com/onlinelabel/?qt=tile&x=' + x + '&y=' + y + '&z=' + z + '&styles=pl&udt=20160321&scaler=1&p=1';
+            return 'http://online2.map.bdimg.com/onlinelabel/?qt=tile&x=' + x + '&y=' + y + '&z=' + z + '&styles=pl&udt=20170607&scaler=1&p=1';
+        }
+    });
+ 
+    // 百度地图层
+    var baiduMapLayer2 = new ol.layer.Tile({
+        source: baiduSource
+    });
+
+    var map = new ol.Map({
+        target: 'map',
+        layers: [baiduMapLayer2],
+        view: new ol.View({
+            zoom: 12,
+            center : ol.proj.transform([ 108.945731,34.382717], 'EPSG:4326', 'EPSG:3857')
+        })
+    });
+ 
+</script>
+</html>

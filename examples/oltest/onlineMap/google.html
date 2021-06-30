@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayer加载谷歌在线地图</title>
+    <link rel="stylesheet" href="../../../libs/ol/openlayers/dist/ol.css">
+    <script type="text/javascript" src="../../../libs/ol/openlayers/dist/ol.js"></script>
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=wNdy48s7V1izbLL0ziswArXq"></script> -->
+</head>
+<body>
+<div id="map" style="width: 100%"></div>
+</div>
+</body>
+ 
+<script>
+    // google地图受网络的原因加载不稳定
+    // google地图层
+    var googleMapLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+            // url:'http://ditu.google.cn/maps/vt/pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i345013117!3m8!2szh-CN!3scn!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0'
+            url:'http://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}'
+        })
+    });
+    var map=new ol.Map({
+        layers: [googleMapLayer],
+        target: 'map',
+        view:new ol.View({
+            projection: 'EPSG:4326',
+            zoom: 10,
+            center: [108.9389705658,34.3752497164]
+        })
+    })
+</script>
+</html>
