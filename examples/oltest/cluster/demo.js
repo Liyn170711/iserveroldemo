@@ -24,7 +24,8 @@ function initMap () {
       center: [117.2217669912229, 31.530237788257043]
     })
   })
-  addFeatureLayer();
+  // addFeatureLayer(); // 添加要素图层
+  addFeatureLabelLayer(); // 添加要素文字标注图层
 }
 
  /**
@@ -68,7 +69,66 @@ function addFeatureLayer () {
             scale: 0.32, //图标缩放比例
             opacity: 1, //透明度
             src: '../../../img/directlyBranch_3.png' //图标的url
-          })),
+          }))
+          // text: new ol.style.Text({
+          //   offsetX: 0,
+          //   offsetY: 20,
+          //   font: '12px Calibri,sans-serif',
+          //   text: textLabel,
+          //   fill: new ol.style.Fill({
+          //       color: '#000',
+          //       border: 5,
+          //       width: 3
+          //   })
+          // })
+       })
+     }
+   })
+   map.addLayer(vectorLayer)
+}
+
+ /**
+ * @description: 添加要素文字标注图层
+ * @date: 
+ */
+function addFeatureLabelLayer () {
+  let features = []
+  for (const point of ccbcPoints) {
+    let {coordinate, id, name, type, subType} = point
+    let coordinates = coordinate.split(',').map(item => Number(item))
+    let attr = {
+      id,
+      name,
+      type,
+      subType,
+      coordinates
+    }
+    let feature = new ol.Feature({
+      geometry: new ol.geom.Point(coordinates),
+      attribute: attr
+    })
+    features.push(feature)
+  }
+   let source = new ol.source.Vector({
+     features
+   })
+   let clusterSource = new ol.source.Cluster({
+    distance: 20,
+    source: source,
+  });
+   let vectorLayer = new ol.layer.Vector({
+     source: clusterSource,
+     style: (feature, resolution) => {
+       let features = feature.get('features')
+       let textLabel = features.length === 1 ? features[0].get('attribute').name : '聚合'
+       return new ol.style.Style({
+          // image: new ol.style.Icon( /** @type {olx.style.IconOptions} */ ({
+          //   offsetX: -16,
+          //   offsetY: -16,
+          //   scale: 0.32, //图标缩放比例
+          //   opacity: 1, //透明度
+          //   src: '../../../img/directlyBranch_3.png' //图标的url
+          // })),
           text: new ol.style.Text({
             offsetX: 0,
             offsetY: 20,
