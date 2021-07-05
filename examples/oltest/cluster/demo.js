@@ -24,7 +24,7 @@ function initMap () {
       center: [117.2217669912229, 31.530237788257043]
     })
   })
-  // addFeatureLayer(); // 添加要素图层
+  addFeatureLayer(); // 添加要素图层
   addFeatureLabelLayer(); // 添加要素文字标注图层
 }
 
