@@ -25,7 +25,7 @@ function initMap () {
     })
   })
   addFeatureLayer(); // 添加要素图层
-  addFeatureLabelLayer(); // 添加要素文字标注图层
+  // addFeatureLabelLayer(); // 添加要素文字标注图层
 }
 
  /**
@@ -62,26 +62,51 @@ function addFeatureLayer () {
      style: (feature, resolution) => {
        let features = feature.get('features')
        let textLabel = features.length === 1 ? features[0].get('attribute').name : '聚合'
-       return new ol.style.Style({
+       let numLabel = features.length === 1 ? '' : features.length.toString()
+       let styles = []
+       let iconStyle = new ol.style.Style({
           image: new ol.style.Icon( /** @type {olx.style.IconOptions} */ ({
             offsetX: -16,
             offsetY: -16,
             scale: 0.32, //图标缩放比例
             opacity: 1, //透明度
-            src: '../../../img/directlyBranch_3.png' //图标的url
+            src: '../../../img/directlyBranch_1.png' //图标的url
           }))
           // text: new ol.style.Text({
-          //   offsetX: 0,
-          //   offsetY: 20,
-          //   font: '12px Calibri,sans-serif',
-          //   text: textLabel,
-          //   fill: new ol.style.Fill({
-          //       color: '#000',
-          //       border: 5,
-          //       width: 3
-          //   })
-          // })
+            //   offsetX: 0,
+            //   offsetY: 20,
+            //   font: '12px Calibri,sans-serif',
+            //   text: textLabel,
+            //   fill: new ol.style.Fill({
+              //       color: '#000',
+              //       border: 5,
+              //       width: 3
+              //   })
+              // })
        })
+       styles.push(iconStyle)
+       let numStyle = new ol.style.Style({
+        // image: new ol.style.Circle({ // 定义点（起点、终点）的样式
+        //     radius: 6,
+        //     displacement: [40, -40],
+        //     fill: new ol.style.Fill({
+        //         color: 'red'
+        //     })
+        // }),
+        text: new ol.style.Text({ // 定义文本的样式
+          offsetX: 11,
+          offsetY: -11,
+          text: '·',
+          font:'bold 24px 微软雅黑',
+          fill: new ol.style.Fill({
+              color: 'red'
+          }),
+          textAlign:'center',
+          textBaseline:'middle'
+        })
+      })
+      features.length > 1 && styles.push(numStyle)
+      return styles
      }
    })
    map.addLayer(vectorLayer)
