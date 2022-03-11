@@ -4,6 +4,7 @@
 fetch('http://127.0.0.1:8016/geoserver/gwc/service/wmts?REQUEST=getcapabilities').then((response) => { // 加载成功--geoserver自带
     return response.text();
   }).then((text) => {
+    debugger
     console.log('响应信息 wmts-getcapabilities.xml：', text)
     var parser = new ol.format.WMTSCapabilities()
     var result = parser.read(text)
@@ -23,10 +24,10 @@ fetch('http://127.0.0.1:8016/geoserver/gwc/service/wmts?REQUEST=getcapabilities'
     console.log('解析到的中心点信息', [centerX, centerY])
     var map = new ol.Map({
         layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            opacity: 0.7
-          }),
+          // new ol.layer.Tile({
+          //   source: new ol.source.OSM(),
+          //   opacity: 0.7
+          // }),
           new ol.layer.Tile({
             opacity: 1,
             source: new ol.source.WMTS(options)

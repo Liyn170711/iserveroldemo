@@ -29,7 +29,7 @@ const upperPathStyle = new ol.style.Style({
 // 箭头图标样式
 let arrowIcon = (rotation) =>{
   var myImage = new Image(117, 117);
-  myImage.src = '../../../img/path_arrow.png';
+  myImage.src = '../../../../img/path_arrow.png';
   return new ol.style.Icon({
     img: myImage,
     imgSize: [117, 117],

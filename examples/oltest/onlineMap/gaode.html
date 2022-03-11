@@ -22,11 +22,12 @@
              * type: 5-poi标注层，7-平面+poi，11-平面
              * style：6-卫星影像，7-全要素（比交通图多绿地、湖、河流等)，8-交通图
             */
-           url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=16' // 全要素
+        //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=16' // 全要素
         //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}&scl=1&ltype=7' // 全要素+poi
         //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=7' // 交通+poi
         //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=8&x={x}&y={y}&z={z}&scl=1&ltype=5' // poi层
         //    url:'https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=6&x={x}&y={y}&z={z}&scl=1&ltype=11' // 遥感影像
+           url: 'https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}' // 全要素平面图
        })
    });
 
@@ -85,9 +86,9 @@
         })
     })
 
-    // map.addLayer(back_poi_layer); // back
-    map.addLayer(satellite_layer); // 平面图
-    map.addLayer(annotation); // poi
+    map.addLayer(gaodeLayer); // back
+    // map.addLayer(satellite_layer); // 平面图
+    // map.addLayer(annotation); // poi
  
 </script>
 </html>

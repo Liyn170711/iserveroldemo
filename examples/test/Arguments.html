@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Arguments转换为数组</title>
+</head>
+<body>
+  <input id="search" type="text"></input>
+  <div id="content" style="height: 150px; line-height: 150px; text-align: center; background: #ccc; font-size: 36px;"></div>
+</div>
+</body>
+ 
+<script>
+  function makeFunc() {
+    var args = Array.prototype.slice.call(arguments);
+    // var args = [].slice.call(arguments);
+ }
+ var func = makeFunc(1, "I like %1 not %2.");
+ func("js", "java");   
+ func("java", "python");
+</script>
+</html>

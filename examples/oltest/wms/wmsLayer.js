@@ -27,15 +27,14 @@ function loadWMSFromGeoserver() {
   })
   map = new ol.Map({
     layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM(),
-        opacity: 0.7
-      })
+      // new ol.layer.Tile({
+      //   source: new ol.source.OSM(),
+      //   opacity: 0.7
+      // })
     ],
     target: 'map',
     view: view
   });
-  debugger
   // addBackWMS() // 添加geoserver 发布的 WMS 图层-back
   addBackWMSC() // 添加geoserver 发布的 WMSC 图层-back
   // addRSWms() // 添加geoserver 发布的 WMS 图层-rs
@@ -47,18 +46,46 @@ function loadWMSFromGeoserver() {
  */
 function addBackWMS() {
   // 瓦片图层
-  let wmsFromGeoserver = new ol.layer.Tile({
+  let tiled = new ol.layer.Tile({
     // 这是瓦片图层源，即使用发布好的服务就行
     source: new ol.source.TileWMS({
         // 这里url的格式就是  http://ip:port/geoserver/{workspaceName}/wms
         url: 'http://127.0.0.1:8016/geoserver/tjnu/wms',
         // 这里参数layers的是  工作空间:图层名称
-        params: {'LAYERS': 'tjnu:back'},
+        params: {
+          'LAYERS': 'tjnu:back,tjnu:buildingblockshadow,tjnu:buildingblock',
+        },
         // 服务类型: geoserver
-        serverType: 'geoserver'
+        // serverType: 'geoserver'
     })
   })
-  map.addLayer(wmsFromGeoserver)
+  var untiled = new ol.layer.Image({
+    source: new ol.source.ImageWMS({
+      ratio: 1,
+      url: 'http://127.0.0.1:8016/geoserver/tjnu/wms',
+      params: {'FORMAT': 'image/png',
+               'VERSION': '1.1.1',  
+            STYLES: '',
+            LAYERS: 'tjnu:back,tjnu:buildingblockshadow,tjnu:buildingblock,tjnu:building',
+      }
+    })
+  });
+  // 瓦片图层
+  // let tiled = new ol.layer.Tile({
+  //   // 这是瓦片图层源，即使用发布好的服务就行
+  //   source: new ol.source.TileWMS({
+  //       // 这里url的格式就是  http://ip:port/geoserver/{workspaceName}/wms
+  //       url: 'http://127.0.0.1:8016/geoserver/tjnu/wms',
+  //       // 这里参数layers的是  工作空间:图层名称
+  //       params: {
+  //         'LAYERS': 'tjnu:back,tjnu:buildingblockshadow,tjnu:buildingblock,tjnu:building',
+          
+  //       },
+  //       // 服务类型: geoserver
+  //       serverType: 'geoserver'
+  //   })
+  // })
+  map.addLayer(tiled)
 }
 
  /**
@@ -69,7 +96,7 @@ function addBackWMSC() {
   addLayerWMSC('tjnu:back') // 背景图层
   addLayerWMSC('tjnu:buildingblockshadow') // 建筑物阴影
   addLayerWMSC('tjnu:buildingblock') // 建筑物轮廓
-  addLayerWMSC('tjnu:building') // 建筑物名称
+  // addLayerWMSC('tjnu:building') // 建筑物名称
 }
 
  /**
@@ -88,7 +115,7 @@ function addLayerWMSC(layer) {
           'FORMAT': 'image/png8', // 格式必须是启用的格式
 
         },
-        serverType: 'geoserver'
+        // serverType: 'geoserver'
     })
   })
   map.addLayer(wmscLayer)

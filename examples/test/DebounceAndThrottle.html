@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>防抖和节流</title>
+</head>
+<body>
+  <input id="search" type="text"></input>
+  <div id="content" style="height: 150px; line-height: 150px; text-align: center; background: #ccc; font-size: 36px;"></div>
+</div>
+</body>
+ 
+<script>
+  let num = 1;
+  let content = document.getElementById('content');
+  function count() {
+    content.innerHTML = num++;
+  }
+  content.onmousemove = count;
+  //----------------------------------- 防抖 debounce
+  // 延迟执行（等待 2s 再执行）
+  // function debounce(func, wait){
+  //   let timeout; // 定时器
+  //   return function() {
+  //     if (timeout) clearTimeout(timeout); // 清除定时器，取消之前的任务
+  //     timeout = setTimeout(function(){ // 增加一个定时器
+  //       func.apply(this); // 执行 fun 函数
+  //     }, wait);
+  //   }
+  // }
+  // 立即执行（立即执行，等待 2s 再次执行）
+  // function debounce(func, wait){
+  //   let timeout; // 定时器
+  //   return function() {
+  //     if (timeout) clearTimeout(timeout); // 清除定时器，取消之前的任务
+  //     let callNow = !timeout;  // 强制类型转换，转换成 boolean
+  //     timeout = setTimeout(function(){ // 增加一个定时器
+  //       timeout = null;
+  //     }, wait);
+  //     if (callNow) func.apply(this); // 执行 fun 函数
+  //   }
+  // }
+  // content.onmousemove = debounce(count, 2000);
+
+  //----------------------------------- 节流 throttle
+  // 固定的时间发送请求
+  // setTimeout定时器实现
+  // function throttle(func, wait){
+  //   let timeout; // 定义一个定时器句柄
+  //   return function() {
+  //     if (!timeout) { // 定时器是否存在
+  //       timeout = setTimeout(() => { // 创建定时器
+  //         timeout = null; // 清空定时器
+  //         func.apply();
+  //       }, wait);
+  //     }
+  //   }
+  // }
+  // 时间戳方式实现
+  function throttle(func, wait){
+    let pre = 0; // 上次记录的时间，初始值
+    console.log('pre:', pre)
+    return function() {
+      let now = Date.now(); // 当前时间
+      if (now - pre > wait) { // 当前时间 - 上次时间 > 等待时间
+        func.apply(); // 执行函数
+        pre = now; // 重置上次记录的时间
+      }
+    }
+  }
+  content.onmousemove = throttle(count, 2000);
+
+
+</script>
+</html>

@@ -23,7 +23,8 @@ let arrowText = (rotation) => {
     text: window.getComputedStyle(document.querySelector('.icon-jiantou'), ':before').getPropertyValue('content').replace(/"/g, ''), // 获取伪类样式的内容
     fill: new ol.style.Fill({ color: '#ffffff' }),
     textBaseline: 'middle',
-    rotation: -rotation
+    rotation: -rotation,
+    offsetY: -1
   })
 }
 // 箭头图标样式
@@ -36,7 +37,7 @@ let arrowIcon = (rotation) =>{
   //   rotation: -rotation
   // })
   var myImage = new Image(117, 117);
-  myImage.src = '../../../img/path_arrow.png';
+  myImage.src = '../../../../img/path_arrow.png';
   return new ol.style.Icon({
     img: myImage,
     imgSize: [117, 117],
@@ -135,12 +136,14 @@ function handleSelectPoint(pointCoord) {
  */
 function handleMapResolutionChange(param) {
   console.log('处理地图分辨率变化', param)
-  let mapResolution = map.getView().getResolution()
-  // console.log('获取到当前地图的分辨率：', mapResolution)
-  geoStep = ARROW_PIX_STEP * mapResolution // 当前地图分辨率每隔 geoStep 米 显示一个箭头
-  // console.log('当前地图分辨率每隔', geoStep, ' m 显示一个箭头')
-  vectorSource && deleteRouteArrowFeature() // 删除路径箭头要素
-  map.once('moveend', handleMoveEnd) // 监听地图移动事件
+  if (Number.isInteger(param.target.getZoom())) {
+    let mapResolution = param.target.getResolution()
+    // console.log('获取到当前地图的分辨率：', mapResolution)
+    geoStep = ARROW_PIX_STEP * mapResolution // 当前地图分辨率每隔 geoStep 米 显示一个箭头
+    // console.log('当前地图分辨率每隔', geoStep, ' m 显示一个箭头')
+    vectorSource && deleteRouteArrowFeature() // 删除路径箭头要素
+    map.once('moveend', handleMoveEnd) // 监听地图移动事件
+  }
 }
 /** 
  * 处理地图移动结束
@@ -236,7 +239,8 @@ function handleMoveEnd() {
     }
     styles.push(new ol.style.Style({
         geometry: new ol.geom.Point(arraw_coor),
-        image: arrowIcon(arrow_rotation)
+        // image: arrowIcon(arrow_rotation)
+        text: arrowText(arrow_rotation)
     }))
   }
   return styles

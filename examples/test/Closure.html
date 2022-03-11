@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>闭包</title>
+</head>
+<body>
+  <input id="search" type="text"></input>
+  <div id="content" style="height: 150px; line-height: 150px; text-align: center; background: #ccc; font-size: 36px;"></div>
+</div>
+</body>
+ 
+<script>
+  /**
+   * 闭包（closure）指有权访问另一个函数作用域中变量的函数。—— JavaScript 高级程序设计
+   * fn2的作用域当中访问到了fn1函数中的num这个局部变量 ，所以此时fn1 就是一个闭包函数（被访问的变量所在的函数就是一个闭包函数）
+   * 也有人说，闭包是一种现象，一个作用域访问了另外一个函数中的局部变量，如果有这种现象的产生，就有了闭包的发生
+   */
+    function fn1() {
+        var num = 10;
+        function fn2() {
+            console.log(num);
+        }
+        fn2();
+    }
+    fn1(); //输出结果10
+
+</script>
+</html>

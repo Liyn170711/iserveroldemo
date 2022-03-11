@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>观察者模式</title>
+</head>
+<body>
+  <input id="search" type="text"></input>
+  <div id="content" style="height: 150px; line-height: 150px; text-align: center; background: #ccc; font-size: 36px;"></div>
+</div>
+</body>
+ 
+<script>
+  // 观察者设计模式
+var event = {
+    list: [], // 商品列表[key: [], key: [],]
+    listen: function(key, fn) {
+        if (!this.list[key]) {
+            this.list[key] = [];    
+        }
+        shopObj.list[key].push(fn); // 往特定的商品列表中添加订阅
+    },
+    publish: function(){
+        var key = arguments[0];
+        var fns = this.list[key];
+        for(var i = 0, fn; fn = fns[i++];) {
+            // 执行订阅的fn, arguments 是 js内置对象 存储所有实参
+            fn.apply(this, arguments);
+        }
+    }
+}
+var initEvent = function(obj) {
+    for(var property in event) {
+        obj[property] = event[property];          
+    }
+}
+// 发布者
+var shopObj = {};
+initEvent(shopObj);
+// A添加订阅 huawei
+shopObj.listen('huawei', function(brand, model){
+    console.log('A订阅：', brand, model);
+})
+// B添加订阅 apple
+shopObj.listen('apple', function(brand, model){
+    console.log('B订阅：', brand, model);
+})
+// 双11 商家发布消息
+shopObj.publish('huawei', 'P30');
+shopObj.publish('apple', 'iphone 11');
+
+</script>
+</html>
